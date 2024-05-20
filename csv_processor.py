@@ -1,4 +1,9 @@
 import csv
+from min_heap import MinHeap
+
+
+sorted = MinHeap()
+addresses = []
 
 # ////////// Gather Territory Records Data //////////
 with open("SOPO Territory #01.csv", "r") as structures:
@@ -33,21 +38,11 @@ with open("SOPO Territory #01.csv", "r") as structures:
     # print("Addresses", clean_addresses)
 
 
-
-updated_addresses = []
-
 # ////////// Gather Poughkeepsie Structures Data //////////
 with open("Poughkeepsie Structures.csv", "r") as structures:
     
-    reader = csv.DictReader(structures)
-    
-    for address in clean_addresses:
-        print(address[0].upper())
-        counter = 0
-        for row in reader:
-            counter += 1
-            print("Row " + row['PROP_ADDR'])
-            if address[0].upper() == row['PROP_ADDR']:
-                print("match")
-            
-        print(counter)
+    reader = csv.reader(structures)
+
+    for line in reader:
+        sorted.add(line)
+
