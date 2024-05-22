@@ -1,6 +1,6 @@
 import csv
-from application.min_heap import MinHeap
-from application.binary_search import binary_search
+from min_heap import MinHeap
+from binary_search import binary_search
 
 # Storage for Poughkeepsie Structures Data
 sorted = MinHeap()
@@ -26,7 +26,7 @@ def standardize(address):
 
 
 # ////////// Gather Territory Records Data //////////
-with open("SOPO Territory #01.csv", "r") as structures:
+with open("input/SOPO Territory #01.csv", "r") as structures:
 
     reader = csv.reader(structures)
 
@@ -66,7 +66,7 @@ with open("SOPO Territory #01.csv", "r") as structures:
 
 
 # ////////// Gather Poughkeepsie Structures Data //////////
-with open("Poughkeepsie Structures.csv", "r") as structures:
+with open("data/Poughkeepsie Structures.csv", "r") as structures:
     
     reader = csv.reader(structures)
 
