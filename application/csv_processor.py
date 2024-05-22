@@ -1,6 +1,6 @@
 import csv
-from min_heap import MinHeap
-from binary_search import binary_search
+from application.min_heap import MinHeap
+from application.binary_search import binary_search
 
 # Storage for Poughkeepsie Structures Data
 sorted = MinHeap()
@@ -97,3 +97,4 @@ print("Failed Searches: ", failed_searches)
 print("Completed Addresses:", complete_addresses)
 
 # print(len(territory_addresses), len(complete_addresses), len(failed_searches))
+
