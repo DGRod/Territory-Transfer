@@ -2,6 +2,13 @@ import csv
 from min_heap import MinHeap
 from binary_search import binary_search
 
+
+# Standardized Address Data:
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# line1 / line2 / city / state / postalcode / dnc / lang / locationType / latitude / longitude / sortOrder / hideOnMap / lastWorked / notes
+# ------------------------------------------------------------------------------------------------------------------------------------------
+
+# ////////// Storage //////////
 # Storage for Poughkeepsie Structures Data
 sorted = MinHeap()
 sorted_addresses = []
@@ -10,6 +17,7 @@ dncs = []
 clean_addresses = []
 territory_addresses = []
 
+# Standardize Address Format
 def standardize(address):
     dict = {"DR":"DRIVE", "LN":"LANE", "RD":"ROAD", "ST":"STREET", "AV":"AVENUE", "BLVD":"BOULEVARD", "CIR":"CIRCLE", "EXT":"EXTENSION", "HTS":"HEIGHTS", "JCT":"JUNCTION"}
     nsew = {"N":"NORTH", "S":"SOUTH", "E":"EAST", "W":"WEST"}
@@ -26,7 +34,8 @@ def standardize(address):
 
 
 # ////////// Gather Territory Records Data //////////
-with open("input/SOPO Territory #01.csv", "r") as structures:
+filename = input("What file would you like to access?\n")
+with open("input/" + str(filename), "r") as structures:
 
     reader = csv.reader(structures)
 
@@ -51,7 +60,7 @@ with open("input/SOPO Territory #01.csv", "r") as structures:
             break
         index += 1
     
-    dncs = addresses[4:index]
+    dncs = addresses[5:index]
     clean_addresses = addresses[index + 1:]
 
     for address in clean_addresses:
@@ -61,8 +70,8 @@ with open("input/SOPO Territory #01.csv", "r") as structures:
             new_address.append(item)
         territory_addresses.append(standardize(new_address))   
 
-    # print("DNCs", dncs)
-    # print("Addresses", clean_addresses)
+
+# print("Addresses", clean_addresses)
 
 
 # ////////// Gather Poughkeepsie Structures Data //////////
@@ -80,10 +89,6 @@ with open("data/Poughkeepsie Structures.csv", "r") as structures:
 
 
 # ////////// Data Comparison //////////
-# for address in sorted_addresses:
-#     print(address[2])
-# print(territory_addresses)
-
 failed_searches = []
 complete_addresses = []
 for territory_address in territory_addresses:
@@ -92,9 +97,39 @@ for territory_address in territory_addresses:
         failed_searches.append(territory_address)
     else:
         complete_addresses.append([territory_address[-1]] + search)
-    
+
 print("Failed Searches: ", failed_searches)
 print("Completed Addresses:", complete_addresses)
 
-# print(len(territory_addresses), len(complete_addresses), len(failed_searches))
 
+# ////////// Write Data to Output CSV //////////
+with open("output/output.csv", "w") as output:
+    fieldnames = ["line1","line2","city","state","postalcode","dnc","lang","locationType","latitude","longitude","sortOrder","hideOnMap","lastWorked","notes"]
+    writer = csv.DictWriter(output, fieldnames=fieldnames)
+
+    writer.writeheader()
+    for address in complete_addresses:
+        line1 = address[3]
+        line2 = ""
+        city = address[4]
+        state = address[5]
+        postalcode = address[6]
+        dnc = ""
+        lang = ""
+        locationType = str(address[1] + " / " + address[2])
+        latitude = address[8]
+        longitude = address[7]
+        sortOrder = ""
+        hideOnMap = ""
+        lastWorked = ""
+        notes = ""
+    
+        writer.writerow({"line1":line1, "line2":line2, "city":city, "state":state, "postalcode":postalcode, "dnc":dnc, "lang":lang, "locationType":locationType, 
+                         "latitude":latitude, "longitude":longitude, "sortOrder":sortOrder, "hideOnMap":hideOnMap, "lastWorked":lastWorked, "notes":notes})
+
+
+
+# with open("output/output.csv", "r") as output:
+#     reader = csv.DictReader(output)
+#     for row in reader:
+#         print(row)
