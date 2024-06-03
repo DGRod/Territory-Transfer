@@ -166,9 +166,12 @@ for territory_address in territory_addresses:
         # If city is empty:
         if territory_address["city"] == "":
             territory_address["city"] = search[3]
-        territory_address["state"] = search[4]
+        territory_address["state"] = "NY"
         territory_address["longitude"] = search[6]
         territory_address["latitude"] = search[7]
+
+        house_number = (territory_address["line1"].split(" "))[0]
+        territory_address["sortOrder"] = str(house_number)
         # territory_address["locationType"] = str(search[0] + " / " + search[1])
 
         complete_addresses.append(territory_address)
