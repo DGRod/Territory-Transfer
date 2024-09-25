@@ -101,7 +101,7 @@ def territory_extract(filename):
     dncs = []
     clean_addresses = []
     territory_addresses = []
-    with open("input/" + str(filename), "r") as territory_record:
+    with open("CSVs/" + str(filename), "r") as territory_record:
 
         reader = csv.reader(territory_record)
 
@@ -215,15 +215,20 @@ def write_data(complete_addresses, failed_searches, filename):
 
 
 # Gather a list of all files in the 'input' folder
-dir_path = ".\\input"
 filenames = []
-for filename in os.listdir(dir_path):
-    # Convert Excel files to CSV's
+for filename in os.listdir(".\\input"):
+    # Convert Excel files to CSV, add to 'CSVs' folder
     if filename[-5:] == ".xlsx":
         df = pd.read_excel("input/"+filename)
-        df.to_csv("input/"+filename[:-5]+".csv")
-    # Check if files are CSV's:
+        df.to_csv("CSVs/"+filename[:-5]+".csv", index=False, header=False)
+    # If file is CSV, make a copy in 'CSVs' folder:
     elif filename[-4:] == ".csv":
+        df = pd.read_csv("input/"+filename)
+        df.to_csv("CSVs/"+filename[:-5]+".csv", index=False, header=False)
+
+# Check 'CSVs' folder for converted files:
+for filename in os.listdir(".\\CSVs"):
+    if filename[-4:] == ".csv":
         filenames.append(filename)
 
 # Process each file:
