@@ -1,4 +1,6 @@
 import csv
+import pandas as pd
+import os
 from min_heap import MinHeap
 from binary_search import binary_search
 
@@ -16,10 +18,6 @@ nsew = {"N":"NORTH", "S":"SOUTH", "E":"EAST", "W":"WEST"}
 # Storage for Poughkeepsie Structures Data
 sorted = MinHeap()
 sorted_addresses = []
-# Storage for SOPO Territory Data
-dncs = []
-clean_addresses = []
-territory_addresses = []
 
 # Expand abbreviations in the street address (line1 or line2)
 def expand_abbrv(address):
@@ -82,64 +80,6 @@ def standardize(address, is_dnc=False):
 
 
 
-# ////////// Gather Territory Records Data //////////
-filename = input("What file would you like to access?\n")
-with open("input/" + str(filename), "r") as territory_record:
-
-    reader = csv.reader(territory_record)
-
-    # List all addresses from the territory file
-    addresses = []
-    for row in reader:
-        item_list = []
-        is_empty = True
-        for item in row[1:]:
-            if item != '':
-                is_empty = False
-            item_list.append(item)
-        if is_empty is not True:
-            addresses.append(item_list)
-
-    # Remove empty lists from addresses
-    for element in addresses:
-        if element == []:
-            addresses.remove(element)
-
-    # Separate the DNC section from the regular addresses
-    index = 0
-    for address in addresses:
-        if address == ['Address', '', '', 'Name', 'Phone Numbers', '', '', 'Notes']:
-            break
-        index += 1
-    clean_dncs = addresses[5:index]
-    clean_addresses = addresses[index + 1:]
-
-    # Put all text in uppercase and expand all contractions
-    temp_addresses = []
-    for address in clean_addresses:
-        new_address = []
-        for item in address:
-            item = item.upper()
-            new_address.append(item)
-        temp_addresses.append(expand_abbrv(new_address))   
-
-    for address in clean_dncs:
-        new_address = []
-        for item in address:
-            item = item.upper()
-            new_address.append(item)
-        dncs.append(expand_abbrv(new_address))
-
-    # Reorder address data into standard form (see line 6):
-    for address in temp_addresses:
-        territory_addresses.append(standardize(address, False))
-    # Add DNCs to territory_addresses:
-    for address in dncs:
-        territory_addresses.append(standardize(address, True))
-    for address in territory_addresses:
-        print(address)
-
-
 # ////////// Gather Poughkeepsie Structures Data //////////
 with open("data/Poughkeepsie Structures.csv", "r") as structures:
     
@@ -154,46 +94,133 @@ with open("data/Poughkeepsie Structures.csv", "r") as structures:
 
 
 
+
+# ////////// Gather Territory Records Data //////////
+def territory_extract(filename):
+    # Storage for SOPO Territory Data
+    dncs = []
+    clean_addresses = []
+    territory_addresses = []
+    with open("input/" + str(filename), "r") as territory_record:
+
+        reader = csv.reader(territory_record)
+
+        # List all addresses from the territory file
+        addresses = []
+        for row in reader:
+            item_list = []
+            is_empty = True
+            for item in row[1:]:
+                if item != '':
+                    is_empty = False
+                item_list.append(item)
+            if is_empty is not True:
+                addresses.append(item_list)
+
+        # Remove empty lists from addresses
+        for element in addresses:
+            if element == []:
+                addresses.remove(element)
+
+        # Separate the DNC section from the regular addresses
+        index = 0
+        for address in addresses:
+            if address == ['Address', '', '', 'Name', 'Phone Numbers', '', '', 'Notes']:
+                break
+            index += 1
+        clean_dncs = addresses[5:index]
+        clean_addresses = addresses[index + 1:]
+
+        # Put all text in uppercase and expand all contractions
+        temp_addresses = []
+        for address in clean_addresses:
+            new_address = []
+            for item in address:
+                item = item.upper()
+                new_address.append(item)
+            temp_addresses.append(expand_abbrv(new_address))   
+
+        for address in clean_dncs:
+            new_address = []
+            for item in address:
+                item = item.upper()
+                new_address.append(item)
+            dncs.append(expand_abbrv(new_address))
+
+        # Reorder address data into standard form (see line 6):
+        for address in temp_addresses:
+            territory_addresses.append(standardize(address, False))
+        # Add DNCs to territory_addresses:
+        for address in dncs:
+            territory_addresses.append(standardize(address, True))
+        for address in territory_addresses:
+            print(address)
+
+    return territory_addresses
+
+
+
 # ////////// Data Comparison //////////
-failed_searches = []
-complete_addresses = []
-for territory_address in territory_addresses:
-    # binary_search() Poughkeepsie structures data for the address
-    search = binary_search(sorted_addresses, territory_address["line1"])
-    # If the search fails, append address to list of failed searches
-    if search is None:
-        failed_searches.append(territory_address)
-    # If binary_search() is succesful, update the territory_address:
-    else:
-        # Fill address with data from Poughkeepsie structures:
-        if territory_address["city"] == "":
-            territory_address["city"] = search[3]
-        territory_address["state"] = "NY"
-        territory_address["longitude"] = search[6]
-        territory_address["latitude"] = search[7]
+def compare_data(territory_addresses):
+    failed_searches = []
+    complete_addresses = []
+    for territory_address in territory_addresses:
+        # binary_search() Poughkeepsie structures data for the address
+        search = binary_search(sorted_addresses, territory_address["line1"])
+        # If the search fails, append address to list of failed searches
+        if search is None:
+            failed_searches.append(territory_address)
+        # If binary_search() is succesful, update the territory_address:
+        else:
+            # Fill address with data from Poughkeepsie structures:
+            if territory_address["city"] == "":
+                territory_address["city"] = search[3]
+            territory_address["state"] = "NY"
+            territory_address["longitude"] = search[6]
+            territory_address["latitude"] = search[7]
 
-        house_number = (territory_address["line1"].split(" "))[0]
-        territory_address["sortOrder"] = str(house_number)
-        # territory_address["locationType"] = str(search[0] + " / " + search[1])
+            house_number = (territory_address["line1"].split(" "))[0]
+            territory_address["sortOrder"] = str(house_number)
+            # territory_address["locationType"] = str(search[0] + " / " + search[1])
 
-        complete_addresses.append(territory_address)
+            complete_addresses.append(territory_address)
 
-print("Failed Searches: ", failed_searches)
-print("Completed Addresses:", complete_addresses)
+    print("Failed Searches: ", failed_searches)
+    #print("Completed Addresses:", complete_addresses)
 
-
-# ////////// Write Data to Output CSV //////////
-with open("output/output.csv", "w") as output:
-    fieldnames = ["line1","line2","city","state","postalcode","dnc","lang","locationType","latitude","longitude","sortOrder","hideOnMap","lastWorked","notes"]
-    writer = csv.DictWriter(output, fieldnames=fieldnames)
-
-    writer.writeheader()
-    for address in complete_addresses:
-        writer.writerow(address)
+    return complete_addresses, failed_searches
 
 
 
-# with open("output/output.csv", "r") as output:
-#     reader = csv.DictReader(output)
-#     for row in reader:
-#         print(row)
+
+# ////////// Write Data to Output //////////
+def write_data(complete_addresses, failed_searches, filename):
+    # Write updated addresses to output CSV:
+    with open("output/converted_"+filename, "w") as output:
+        fieldnames = ["line1","line2","city","state","postalcode","dnc","lang","locationType","latitude","longitude","sortOrder","hideOnMap","lastWorked","notes"]
+        writer = csv.DictWriter(output, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for address in complete_addresses:
+            writer.writerow(address)
+    
+    # Write failed searches to error file:
+    if len(failed_searches) > 0:
+        with open("errors/errors_"+filename[:-4]+".txt", "w") as errors:
+            for fail in failed_searches:
+                errors.write(str(fail))
+
+
+
+
+
+# Gather a list of all files in the 'input' folder
+dir_path = ".\\input"
+filenames = []
+for filename in os.listdir(dir_path):
+    filenames.append(filename)
+# Process each file:
+for filename in filenames:
+    territory_addresses = territory_extract(filename)
+    complete_addresses, failed_searches = compare_data(territory_addresses)
+    write_data(complete_addresses, failed_searches, filename)
