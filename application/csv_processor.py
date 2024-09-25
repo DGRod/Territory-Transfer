@@ -218,7 +218,14 @@ def write_data(complete_addresses, failed_searches, filename):
 dir_path = ".\\input"
 filenames = []
 for filename in os.listdir(dir_path):
-    filenames.append(filename)
+    # Convert Excel files to CSV's
+    if filename[-5:] == ".xlsx":
+        df = pd.read_excel("input/"+filename)
+        df.to_csv("input/"+filename[:-5]+".csv")
+    # Check if files are CSV's:
+    elif filename[-4:] == ".csv":
+        filenames.append(filename)
+
 # Process each file:
 for filename in filenames:
     territory_addresses = territory_extract(filename)
