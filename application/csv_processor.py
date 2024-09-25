@@ -10,7 +10,8 @@ from binary_search import binary_search
 
 # ////////// Storage //////////
 # Storage for Abbreviations
-abbrv_dict = {"DR":"DRIVE", "LN":"LANE", "RD":"ROAD", "ST":"STREET", "AV":"AVENUE", "BLVD":"BOULEVARD", "CIR":"CIRCLE", "EXT":"EXTENSION", "HTS":"HEIGHTS", "JCT":"JUNCTION", "CT":"COURT"}
+abbrv_dict = {"DR":"DRIVE", "LN":"LANE", "RD":"ROAD", "ST":"STREET", "AV":"AVENUE", "BLVD":"BOULEVARD",
+              "CIR":"CIRCLE", "EXT":"EXTENSION", "HTS":"HEIGHTS", "JCT":"JUNCTION", "CT":"COURT"}
 nsew = {"N":"NORTH", "S":"SOUTH", "E":"EAST", "W":"WEST"}
 # Storage for Poughkeepsie Structures Data
 sorted = MinHeap()
@@ -20,13 +21,13 @@ dncs = []
 clean_addresses = []
 territory_addresses = []
 
-# Standardize Address Format
+# Expand abbreviations in the street address (line1 or line2)
 def expand_abbrv(address):
-    
     split_address = address[0].split(" ")
-    
+    # Expand street type
     if split_address[-1] in abbrv_dict.keys():
         split_address[-1] = abbrv_dict[split_address[-1]]
+    # Expand direction
     if len(split_address) >= 2:
         if split_address[1] in nsew.keys():
             split_address[1] = nsew[split_address[1]]
@@ -34,27 +35,29 @@ def expand_abbrv(address):
     address[0] = " ".join(split_address)
     return address
 
+# Standardize Address Format
 def standardize(address, is_dnc=False):
     standard_form_address = {"line1":"", "line2":"", "city":"", "state":"", "postalcode":"", "dnc":"", "lang":"", "locationType":"", 
                                     "latitude":0, "longitude":0, "sortOrder":"", "hideOnMap":"", "lastWorked":"", "notes":""}
     street = address[0].split(" ")
+    print(street)
     line1 = []
-    line2 = ""
-    # If street address ends in an apartment/unit number:
+    line2 = []
+    # Determine if the address has a second line:
     if len(street[-1]) > 0:
+        # If street address ends in an apartment/unit number:
         if street[-1][-1] in [str(x) for x in range(0, 10)]:
             # Determine if apartment/unit number is preceded by a word:
             if street[-2] not in abbrv_dict.keys() and street[-2] not in abbrv_dict.values():
-                line2 = street[-2]
+                line2 = street[-2:]
                 line1 = street[:-2]
             else:
                 line1 = street[:-1]
-            line2 += street[-1]
         # If street address does not end in an apartment/unit number:
         else:
             line1 = street
     # Add street address into lines 1 and 2
-    standard_form_address["line2"] = line2
+    standard_form_address["line2"] = " ".join(line2)
     standard_form_address["line1"] = " ".join(line1)
 
 
@@ -71,7 +74,6 @@ def standardize(address, is_dnc=False):
     standard_form_address["notes"] = (" / ".join(address[3:])).strip("/ ")
 
     #If the address is a DNC:
-    #print(is_dnc)
     if is_dnc is True:
         standard_form_address["dnc"] = "TRUE"
 
@@ -86,11 +88,10 @@ with open("input/" + str(filename), "r") as territory_record:
 
     reader = csv.reader(territory_record)
 
+    # List all addresses from the territory file
     addresses = []
-    counter = 0
     for row in reader:
         item_list = []
-        #print(row)
         is_empty = True
         for item in row[1:]:
             if item != '':
@@ -130,7 +131,6 @@ with open("input/" + str(filename), "r") as territory_record:
         dncs.append(expand_abbrv(new_address))
 
     # Reorder address data into standard form (see line 6):
-    # print(dncs, temp_addresses)
     for address in temp_addresses:
         territory_addresses.append(standardize(address, False))
     # Add DNCs to territory_addresses:
@@ -144,11 +144,11 @@ with open("input/" + str(filename), "r") as territory_record:
 with open("data/Poughkeepsie Structures.csv", "r") as structures:
     
     reader = csv.reader(structures)
-
+    # Add Poughkeepsie structures data to MinHeap
     for line in reader:
         if line != ['OCC_CLS', 'PRIM_OCC', 'PROP_ADDR', 'PROP_CITY', 'PROP_ST', 'PROP_ZIP', 'LONGITUDE', 'LATITUDE']:
             sorted.add(line)
-
+    # HeapSort Poughkeepsie structures data
     while sorted.count > 0:
         sorted_addresses.append(sorted.retrieve_min())
 
@@ -158,12 +158,14 @@ with open("data/Poughkeepsie Structures.csv", "r") as structures:
 failed_searches = []
 complete_addresses = []
 for territory_address in territory_addresses:
+    # binary_search() Poughkeepsie structures data for the address
     search = binary_search(sorted_addresses, territory_address["line1"])
+    # If the search fails, append address to list of failed searches
     if search is None:
         failed_searches.append(territory_address)
     # If binary_search() is succesful, update the territory_address:
     else:
-        # If city is empty:
+        # Fill address with data from Poughkeepsie structures:
         if territory_address["city"] == "":
             territory_address["city"] = search[3]
         territory_address["state"] = "NY"

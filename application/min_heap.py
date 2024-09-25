@@ -3,7 +3,8 @@ class MinHeap:
     def __init__(self):
         self.heap = [None]
         self.count = 0
-
+        
+    # Helper methods:
     def parent_idx(self, idx):
         return idx // 2 
 
@@ -30,6 +31,7 @@ class MinHeap:
         self.heap.append(item)
         self.heapify_up()
 
+    # Methods for HeapSort:
     def heapify_up(self):
         idx = self.count
         while self.parent_idx(idx) > 0:
