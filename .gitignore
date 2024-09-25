@@ -9,3 +9,5 @@ application/__pycache__/binary_search.cpython-311.pyc
 input/
 output/
 errors/
+*.csv
+*.xlsx
