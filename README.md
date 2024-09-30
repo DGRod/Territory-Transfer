@@ -7,12 +7,13 @@ A program to integrate geo-spatial (GIS) data from the local area into our congr
 - Support for batch upload of territory records
 - Excel files converted automatically to CSV's
 - Accurate location data for each address obtained from FEMA
+- Efficient data management using HeapSort and BinarySearch
 - Convenient output for import into Hourglass
 
 
 ## Usage
 
-1. Import Excel territory file(s)
+1. Import Excel territory file(s) into 'input' folder
 2. Files will be automatically converted to CSV's
 3. Relevant data will be integrated into each address
 4. The modified addresses will be returned as an Hourglass-compatible CSV
