@@ -10,5 +10,6 @@ input/*
 !input/.gitkeep
 output/
 errors/
-*.csv
-*.xlsx
+CSVs/
+!input/example.xlsx
+!output/converted_example.csv
