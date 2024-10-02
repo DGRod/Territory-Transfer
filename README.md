@@ -11,6 +11,13 @@ A program to integrate geo-spatial (GIS) data from the local area into our congr
 - Convenient output for import into Hourglass
 
 
+## Installation
+
+1. Latest release available on [GitHub](https://github.com/DGRod/Territory-Transfer)
+2. Make sure that Pandas is installed in your local environment:
+`pip install pandas`
+
+
 ## Usage
 
 1. Import Excel territory file(s) into 'input' folder
@@ -20,6 +27,4 @@ A program to integrate geo-spatial (GIS) data from the local area into our congr
 5. A list of addresses that caused errors will be returned as a .txt file
 
 ## Data
-GIS data sourced from FEMA:
-
-https://gis-fema.hub.arcgis.com/pages/usa-structures
+GIS data sourced from [FEMA](https://gis-fema.hub.arcgis.com/pages/usa-structures)
