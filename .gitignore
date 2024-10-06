@@ -11,5 +11,3 @@ input/*
 output/
 errors/
 CSVs/
-!input/example.xlsx
-!output/converted_example.csv
